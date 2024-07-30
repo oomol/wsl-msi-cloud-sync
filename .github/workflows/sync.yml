@@ -1,0 +1,67 @@
+name: Sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'WSL Version (e.g. 1.0.0)'
+        required: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download MSI
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: "microsoft/WSL"
+          tag: ${{ github.event.inputs.version }}
+          fileName: "*.msi"
+          tarBall: false
+          zipBall: false
+          out-file-path: "out"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify Output
+        working-directory: out
+        run: |
+          du -sh wsl.${{ github.event.inputs.version }}.0.x64.msi
+          du -sh wsl.${{ github.event.inputs.version }}.0.arm64.msi
+
+      - name: Rename MSI Files
+        run: |
+          mv out/wsl.${{ github.event.inputs.version }}.0.x64.msi out/x64.msi
+          mv out/wsl.${{ github.event.inputs.version }}.0.arm64.msi out/arm64.msi
+
+      - name: Create latest.json
+        run: |
+          cat << EOF > latest.json
+          {
+            "version": "${{ github.event.inputs.version }}",
+            "date": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')",
+            "x64": {
+              "url": "https://static.oomol.com/wsl-msi/${{ github.event.inputs.version }}/x64.msi",
+              "sha256": "$(sha256sum out/x64.msi | cut -d ' ' -f 1)",
+              "size": $(stat --printf="%s" out/x64.msi)
+            },
+            "arm64": {
+              "url": "https://static.oomol.com/wsl-msi/${{ github.event.inputs.version }}/arm64.msi",
+              "sha256": "$(sha256sum out/arm64.msi | cut -d ' ' -f 1)",
+              "size": $(stat --printf="%s" out/arm64.msi)
+            }
+          }
+          EOF
+          cat latest.json | jq
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: "arn:aws:iam::696772636266:role/github-action-wsl_msi_s3_sync"
+          role-session-name: "github-action-wsl_msi_s3_sync"
+          aws-region: us-east-1
+
+      - name: Upload MSI to S3
+        run: aws s3 cp out/*.msi s3://oomol-static/wsl-msi/${{ github.event.inputs.version }}
+
+      - name: Upload latest.json
+        run: aws s3 cp latest.json s3://oomol-static/wsl-msi/latest.json

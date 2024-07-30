@@ -7,6 +7,9 @@ on:
         description: 'WSL Version (e.g. 1.0.0)'
         required: true
 
+permissions:
+  id-token: write
+
 jobs:
   sync:
     runs-on: ubuntu-latest

@@ -64,7 +64,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Upload MSI to S3
-        run: aws s3 cp out/*.msi s3://oomol-static/wsl-msi/${{ github.event.inputs.version }}
+        run: aws s3 cp out/ s3://oomol-static/wsl-msi/${{ github.event.inputs.version }} --include "*.msi"
 
       - name: Upload latest.json
         run: aws s3 cp latest.json s3://oomol-static/wsl-msi/latest.json

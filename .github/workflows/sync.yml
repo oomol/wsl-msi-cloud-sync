@@ -56,15 +56,14 @@ jobs:
           EOF
           cat latest.json | jq
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: "arn:aws:iam::696772636266:role/github-action-wsl_msi_s3_sync"
-          role-session-name: "github-action-wsl_msi_s3_sync"
-          aws-region: us-east-1
+      - name: Configure R2 Credentials
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.R2_OOMOL_STATIC_S3_AK }}
+          aws configure set aws_secret_access_key ${{ secrets.R2_OOMOL_STATIC_S3_SK }}
+          aws configure set region auto
 
       - name: Upload MSI to S3
-        run: aws s3 cp out/ s3://oomol-static/wsl-msi/${{ github.event.inputs.version }} --recursive --include "*.msi"
+        run: aws s3 cp --endpoint-url ${{ secrets.R2_OOMOL_STATIC_S3_ENDPOINT }} out/ s3://oomol-static/wsl-msi/${{ github.event.inputs.version }} --recursive --include "*.msi"
 
       - name: Upload latest.json
-        run: aws s3 cp latest.json s3://oomol-static/wsl-msi/latest.json
+        run: aws s3 cp --endpoint-url ${{ secrets.R2_OOMOL_STATIC_S3_ENDPOINT }} latest.json s3://oomol-static/wsl-msi/latest.json

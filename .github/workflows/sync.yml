@@ -58,12 +58,12 @@ jobs:
 
       - name: Configure R2 Credentials
         run: |
-          aws configure set aws_access_key_id ${{ secrets.R2_OOMOL_STATIC_S3_AK }}
-          aws configure set aws_secret_access_key ${{ secrets.R2_OOMOL_STATIC_S3_SK }}
-          aws configure set region auto
+          aws configure set aws_access_key_id ${{ secrets.OSS_OOMOL_STATIC_S3_AK }}
+          aws configure set aws_secret_access_key ${{ secrets.OSS_OOMOL_STATIC_S3_SK }}
+          aws configure set region ap-southeast-1
 
       - name: Upload MSI to S3
-        run: aws s3 cp --endpoint-url ${{ secrets.R2_OOMOL_STATIC_S3_ENDPOINT }} out/ s3://oomol-static/wsl-msi/${{ github.event.inputs.version }} --recursive --include "*.msi" --checksum-algorithm CRC32
+        run: aws s3 cp --endpoint-url https://oss-ap-southeast-1.aliyuncs.com out/ s3://oomol-static/wsl-msi/${{ github.event.inputs.version }} --recursive --include "*.msi" --checksum-algorithm CRC32
 
       - name: Upload latest.json
-        run: aws s3 cp --endpoint-url ${{ secrets.R2_OOMOL_STATIC_S3_ENDPOINT }} latest.json s3://oomol-static/wsl-msi/latest.json --checksum-algorithm CRC32
+        run: aws s3 cp --endpoint-url https://oss-ap-southeast-1.aliyuncs.com latest.json s3://oomol-static/wsl-msi/latest.json --checksum-algorithm CRC32

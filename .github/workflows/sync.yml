@@ -56,14 +56,23 @@ jobs:
           EOF
           cat latest.json | jq
 
-      - name: Configure R2 Credentials
-        run: |
-          aws configure set aws_access_key_id ${{ secrets.OSS_OOMOL_STATIC_S3_AK }}
-          aws configure set aws_secret_access_key ${{ secrets.OSS_OOMOL_STATIC_S3_SK }}
-          aws configure set region ap-southeast-1
+      - name: Setup rclone
+        uses: AnimMouse/setup-rclone@v1
+        with:
+          rclone_config: |
+            [oss]
+            type = s3
+            provider = Alibaba
+            access_key_id = ${{ secrets.OSS_OOMOL_STATIC_S3_AK }}
+            secret_access_key = ${{ secrets.OSS_OOMOL_STATIC_S3_SK }}
+            endpoint = oss-ap-southeast-1.aliyuncs.com
+            region = ap-southeast-1
+          disable_base64: true
 
-      - name: Upload MSI to S3
-        run: aws s3 cp --endpoint-url https://oss-ap-southeast-1.aliyuncs.com out/ s3://oomol-static/wsl-msi/${{ github.event.inputs.version }} --recursive --include "*.msi" --checksum-algorithm CRC32
+      - name: Upload MSI to OSS
+        run: |
+          rclone copy out/ oss:${{ secrets.OSS_OOMOL_STATIC_BUCKET }}/wsl-msi/${{ github.event.inputs.version }} --progress --transfers 10 --checkers 8 --s3-no-check-bucket --include "*.msi"
 
       - name: Upload latest.json
-        run: aws s3 cp --endpoint-url https://oss-ap-southeast-1.aliyuncs.com latest.json s3://oomol-static/wsl-msi/latest.json --checksum-algorithm CRC32
+        run: |
+          rclone copy latest.json oss:${{ secrets.OSS_OOMOL_STATIC_BUCKET }}/wsl-msi/latest.json --progress --transfers 10 --checkers 8 --s3-no-check-bucket

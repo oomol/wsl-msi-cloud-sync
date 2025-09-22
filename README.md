@@ -1,8 +1,8 @@
-# Sync WSL MSI to [R2]
+# Sync WSL MSI to [OSS]
 
-This project is used to sync the WSL MSI installer to the [R2] bucket.
+This project is used to sync the WSL MSI installer to the [OSS] bucket.
 
-Because in some areas downloading GitHub releases directly may result in network fluctuations and packet loss issues, we will upload the WSL installation package to [Cloudflare R2] and use CDN to accelerate it.
+Because in some areas downloading GitHub releases directly may result in network fluctuations and packet loss issues, we will upload the WSL installation package to [Alibaba Cloud OSS] and use CDN to accelerate it.
 
 This project will not be synchronized frequently (we will decide based on our business needs.), and we do not guarantee that previous versions of the WSL installation package will be retained.
 
@@ -33,5 +33,5 @@ latest.json format:
 }
 ```
 
-[R2]: https://www.cloudflare.com/r2
-[Cloudflare R2]: https://developers.cloudflare.com/r2/
+[OSS]: https://www.alibabacloud.com/en/product/object-storage-service
+[Alibaba Cloud OSS]: https://www.alibabacloud.com/en/product/object-storage-service

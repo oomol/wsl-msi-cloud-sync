@@ -57,19 +57,17 @@ jobs:
           cat latest.json | jq
 
       - name: Setup rclone
-        run: |
-          curl https://rclone.org/install.sh | sudo bash
-
-          mkdir -p ~/.config/rclone
-          cat > ~/.config/rclone/rclone.conf << EOF
-          [oss]
-          type = s3
-          provider = Alibaba
-          access_key_id = ${{ secrets.OSS_OOMOL_STATIC_S3_AK }}
-          secret_access_key = ${{ secrets.OSS_OOMOL_STATIC_S3_SK }}
-          endpoint = https://oss-ap-southeast-1.aliyuncs.com
-          region = ap-southeast-1
-          EOF
+        uses: AnimMouse/setup-rclone@v1
+        with:
+          rclone_config: |
+            [oss]
+            type = s3
+            provider = Alibaba
+            access_key_id = ${{ secrets.OSS_OOMOL_STATIC_S3_AK }}
+            secret_access_key = ${{ secrets.OSS_OOMOL_STATIC_S3_SK }}
+            endpoint = oss-ap-southeast-1.aliyuncs.com
+            region = ap-southeast-1
+          disable_base64: true
 
       - name: Upload MSI to OSS
         run: |
